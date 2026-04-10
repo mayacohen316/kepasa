@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>קפאסה — מערכת לימוד</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #13131a;
+  --surface2: #1c1c26;
+  --border: rgba(255,255,255,0.07);
+  --text: #f0efe8;
+  --muted: rgba(240,239,232,0.45);
+  --c0: #d4a843;
+  --c0b: rgba(212,168,67,0.12);
+  --c1: #7c6fcd;
+  --c1b: rgba(124,111,205,0.12);
+  --c2: #c05b6a;
+  --c2b: rgba(192,91,106,0.12);
+  --correct: #3cbe8a;
+  --wrong: #e05c6a;
+  --radius: 18px;
+  --radius-sm: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Heebo', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  overflow-x: hidden;
+}
+
+/* NOISE TEXTURE */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 0 120px;
+  position: relative;
+  z-index: 1;
+}
+
+/* HEADER */
+.header {
+  padding: 56px 24px 28px;
+  position: relative;
+  overflow: hidden;
+}
+.header-glow {
+  position: absolute;
+  top: -40px; right: -60px;
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(212,168,67,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.header-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--c0);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-logo::before {
+  content: '';
+  display: inline-block;
+  width: 20px; height: 1px;
+  background: var(--c0);
+}
+.header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.header h1 em {
+  font-style: italic;
+  color: var(--c0);
+}
+.header-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 8px;
+  font-weight: 300;
+}
+
+/* CAT TABS */
+.cat-section { padding: 0 16px 20px; }
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.cat-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+.cat-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.cat-btn.c0::after { background: radial-gradient(circle at 50% 0%, rgba(212,168,67,0.2), transparent 70%); }
+.cat-btn.c1::after { background: radial-gradient(circle at 50% 0%, rgba(124,111,205,0.2), transparent 70%); }
+.cat-btn.c2::after { background: radial-gradient(circle at 50% 0%, rgba(192,91,106,0.2), transparent 70%); }
+.cat-btn.active::after { opacity: 1; }
+.cat-btn.active.c0 { border-color: var(--c0); box-shadow: 0 0 24px rgba(212,168,67,0.15); }
+.cat-btn.active.c1 { border-color: var(--c1); box-shadow: 0 0 24px rgba(124,111,205,0.15); }
+.cat-btn.active.c2 { border-color: var(--c2); box-shadow: 0 0 24px rgba(192,91,106,0.15); }
+.cat-btn:active { transform: scale(0.96); }
+.cat-icon { font-size: 24px; margin-bottom: 6px; display: block; }
+.cat-label { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0.03em; }
+.cat-btn.active .cat-label { color: var(--text); }
+.cat-count { font-size: 10px; margin-top: 3px; font-weight: 700; }
+.cat-btn.c0 .cat-count { color: var(--c0); }
+.cat-btn.c1 .cat-count { color: var(--c1); }
+.cat-btn.c2 .cat-count { color: var(--c2); }
+
+/* SUB TABS */
+.sub-section { padding: 0 16px 20px; }
+.sub-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.sub-scroll::-webkit-scrollbar { display: none; }
+.sub-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.sub-btn.active.s0 { background: var(--c0b); border-color: var(--c0); color: var(--c0); }
+.sub-btn.active.s1 { background: var(--c1b); border-color: var(--c1); color: var(--c1); }
+.sub-btn.active.s2 { background: var(--c2b); border-color: var(--c2); color: var(--c2); }
+
+/* MODE TOGGLE */
+.mode-section { padding: 0 16px 24px; }
+.mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 4px;
+  border: 1px solid var(--border);
+}
+.mode-btn {
+  padding: 12px;
+  border-radius: calc(var(--radius) - 4px);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: transparent;
+  border: none;
+}
+.mode-btn.active {
+  background: var(--surface2);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* CONTENT */
+.content { padding: 0 16px; }
+
+/* FLASHCARD */
+.flashcard-wrap { perspective: 1200px; }
+.fc-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.fc-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fc-num { font-size: 13px; color: var(--muted); }
+.fc-bar {
+  width: 80px; height: 3px;
+  background: var(--border);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.fc-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.4s ease;
+}
+.fc-bar-fill.c0 { background: var(--c0); }
+.fc-bar-fill.c1 { background: var(--c1); }
+.fc-bar-fill.c2 { background: var(--c2); }
+.fc-shuffle {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'Heebo', sans-serif;
+}
+
+.flashcard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-height: 280px;
+  padding: 28px 24px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.flashcard:active { transform: scale(0.98); }
+.flashcard.revealed { border-color: rgba(255,255,255,0.12); }
+.fc-stripe {
+  position: absolute;
+  top: 0; right: 0;
+  width: 4px; height: 100%;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.fc-stripe.c0 { background: var(--c0); }
+.fc-stripe.c1 { background: var(--c1); }
+.fc-stripe.c2 { background: var(--c2); }
+.fc-corner-glow {
+  position: absolute;
+  top: -30px; left: -30px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  opacity: 0.06;
+  pointer-events: none;
+}
+.fc-corner-glow.c0 { background: var(--c0); }
+.fc-corner-glow.c1 { background: var(--c1); }
+.fc-corner-glow.c2 { background: var(--c2); }
+.fc-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 100px;
+  margin-bottom: 16px;
+  align-self: flex-start;
+}
+.fc-badge.c0 { background: var(--c0b); color: var(--c0); }
+.fc-badge.c1 { background: var(--c1b); color: var(--c1); }
+.fc-badge.c2 { background: var(--c2b); color: var(--c2); }
+.fc-question {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.fc-answer {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  white-space: pre-line;
+  display: none;
+  animation: fadeUp 0.3s ease;
+}
+.flashcard.revealed .fc-answer { display: block; }
+.fc-hint {
+  font-size: 11px;
+  color: rgba(255,255,255,0.2);
+  text-align: center;
+  margin-top: 20px;
+  letter-spacing: 0.05em;
+}
+.flashcard.revealed .fc-hint { display: none; }
+
+.fc-nav {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  margin-top: 14px;
+  align-items: center;
+}
+.fc-nav-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-size: 18px;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Heebo', sans-serif;
+}
+.fc-nav-btn:disabled { opacity: 0.2; cursor: default; }
+.fc-nav-btn:not(:disabled):active { transform: scale(0.94); background: var(--surface2); }
+.fc-nav-center { font-size: 13px; color: var(--muted); text-align: center; }
+
+/* QUIZ */
+.quiz-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.quiz-stat { font-size: 12px; color: var(--muted); }
+.quiz-stat span { font-size: 15px; font-weight: 700; color: var(--text); margin-left: 4px; }
+.quiz-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.qz-num { font-size: 11px; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 6px; }
+.qz-badge {
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 100px;
+  margin-bottom: 14px;
+}
+.qz-badge.c0 { background: var(--c0b); color: var(--c0); }
+.qz-badge.c1 { background: var(--c1b); color: var(--c1); }
+.qz-badge.c2 { background: var(--c2b); color: var(--c2); }
+.qz-question {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+.options { display: flex; flex-direction: column; gap: 10px; }
+.opt {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  text-align: right;
+  font-family: 'Heebo', sans-serif;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.opt::before {
+  content: '';
+  position: absolute;
+  right: 0; top: 0;
+  width: 3px; height: 100%;
+  background: transparent;
+  transition: background 0.2s;
+}
+.opt:not(.disabled):active { transform: scale(0.98); }
+.opt.correct { background: rgba(60,190,138,0.1); border-color: var(--correct); color: var(--correct); }
+.opt.correct::before { background: var(--correct); }
+.opt.wrong { background: rgba(224,92,106,0.1); border-color: var(--wrong); color: var(--wrong); }
+.opt.wrong::before { background: var(--wrong); }
+.opt.disabled { cursor: default; }
+
+.multi-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.mopt {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 10px 18px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'Heebo', sans-serif;
+  transition: all 0.2s;
+}
+.mopt.sel { color: var(--text); border-color: rgba(255,255,255,0.3); background: var(--surface); }
+.mopt.correct { background: rgba(60,190,138,0.1); border-color: var(--correct); color: var(--correct); }
+.mopt.wrong { background: rgba(224,92,106,0.1); border-color: var(--wrong); color: var(--wrong); }
+.mopt.missed { background: rgba(212,168,67,0.1); border-color: var(--c0); color: var(--c0); }
+
+.check-btn {
+  margin-top: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  font-family: 'Heebo', sans-serif;
+  transition: all 0.2s;
+}
+.open-textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-size: 14px;
+  font-family: 'Heebo', sans-serif;
+  color: var(--text);
+  resize: none;
+  min-height: 80px;
+  margin-bottom: 12px;
+  direction: rtl;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.open-textarea:focus { border-color: rgba(255,255,255,0.2); }
+.reveal-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 11px 18px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'Heebo', sans-serif;
+}
+.answer-reveal {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  line-height: 1.8;
+  white-space: pre-line;
+  display: none;
+  animation: fadeUp 0.3s ease;
+}
+.answer-reveal.shown { display: block; }
+.answer-reveal.c0 { background: rgba(212,168,67,0.08); border: 1px solid rgba(212,168,67,0.2); color: var(--c0); }
+.answer-reveal.c1 { background: rgba(124,111,205,0.08); border: 1px solid rgba(124,111,205,0.2); color: #b0a8e8; }
+.answer-reveal.c2 { background: rgba(192,91,106,0.08); border: 1px solid rgba(192,91,106,0.2); color: #e8a0aa; }
+
+.next-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Heebo', sans-serif;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+.next-btn.c0 { background: var(--c0); color: #0a0a0f; }
+.next-btn.c1 { background: var(--c1); color: #fff; }
+.next-btn.c2 { background: var(--c2); color: #fff; }
+.next-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+/* RESULT */
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 48px 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.result-glow {
+  position: absolute;
+  top: -80px; left: 50%;
+  transform: translateX(-50%);
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  opacity: 0.08;
+  pointer-events: none;
+}
+.result-glow.c0 { background: var(--c0); }
+.result-glow.c1 { background: var(--c1); }
+.result-glow.c2 { background: var(--c2); }
+.result-score {
+  font-family: 'Playfair Display', serif;
+  font-size: 72px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.result-score.c0 { color: var(--c0); }
+.result-score.c1 { color: var(--c1); }
+.result-score.c2 { color: var(--c2); }
+.result-label {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.result-msg {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+.result-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 36px;
+  font-weight: 300;
+}
+.restart-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 40px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  font-family: 'Heebo', sans-serif;
+  transition: all 0.2s;
+}
+.restart-btn:active { transform: scale(0.97); }
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.content > * { animation: slideIn 0.3s ease; }
+
+/* EMPTY */
+.empty { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-glow"></div>
+    <div class="header-logo">KEPASA</div>
+    <h1>מערכת <em>לימוד</em></h1>
+    <p class="header-sub">100% ברמנים • בחרי קטגוריה והתחילי</p>
+  </div>
+
+  <div class="cat-section">
+    <div class="cat-grid">
+      <button class="cat-btn c0 active" onclick="setCat(0)">
+        <span class="cat-icon">🍽️</span>
+        <div class="cat-label">תפריט אוכל</div>
+        <div class="cat-count c0" id="cnt0"></div>
+      </button>
+      <button class="cat-btn c1" onclick="setCat(1)">
+        <span class="cat-icon">🥃</span>
+        <div class="cat-label">אלכוהול</div>
+        <div class="cat-count c1" id="cnt1"></div>
+      </button>
+      <button class="cat-btn c2" onclick="setCat(2)">
+        <span class="cat-icon">🍹</span>
+        <div class="cat-label">שייקים</div>
+        <div class="cat-count c2" id="cnt2"></div>
+      </button>
+    </div>
+  </div>
+
+  <div class="sub-section">
+    <div class="sub-scroll" id="sub-scroll"></div>
+  </div>
+
+  <div class="mode-section">
+    <div class="mode-toggle">
+      <button class="mode-btn active" onclick="setMode('flash')">✦ כרטיסיות זיכרון</button>
+      <button class="mode-btn" onclick="setMode('quiz')">◎ קוויז</button>
+    </div>
+  </div>
+
+  <div class="content" id="content"></div>
+</div>
+
+<script>
+const SUBS = [
+  ['הכל','מנות פתיחה','ראשונות','סלטים','מאפים','פסטות','בשרים ודגים','המבורגרים','קינוחים','תוספות וטבעוני'],
+  ['הכל','וודקה','ג\'ין','רום','טקילה/מזקל','ויסקי','קוניאק','ליקר/אפריטיף','בירה'],
+  ['הכל','שייקים','קוקטיילי הבית','קלאסיים','שפריצים']
+];
+
+const FLASH = [
+  {cat:0,sub:'מנות פתיחה',q:'מה 4 המטבלים עם פוקצ\'ת הבית?',a:'סלסת עגבניות, שום קונפי, טפנד זיתים, סלסה ורדה חריפה.\nניתן לטבעוני ללא טפנד (מכיל אנשובי).'},
+  {cat:0,sub:'מנות פתיחה',q:'מה מרכיבי "החריפים של קפאסה"?',a:'פלפל חריף מטוגן, סלט משאוויה, סלסה ורדה, צ\'ילי ירוק מוחמץ, צ\'ילי אדום קלברזה.'},
+  {cat:0,sub:'מנות פתיחה',q:'מה סקורדליה ומה חשוב לאלרגנים?',a:'ממרח יווני — שום, שקדים, תפוחי אדמה, שמן זית, בצל ירוק.\nמכיל לחם — לא מותאם לצליאקים.'},
+  {cat:0,sub:'מנות פתיחה',q:'מה שושקה שרופים?',a:'פלפלי שושקה שרופים באש גלויה, מוגשים קרים. פטה כבשים, אורגנו, שום, שמן זית, חומץ בן יין.'},
+  {cat:0,sub:'מנות פתיחה',q:'מה ברולה פלפלים פיקנטי?',a:'ממרח מקורמל על בסיס פלפלים קלויים וגבינת פטה יוונית.'},
+  {cat:0,sub:'ראשונות',q:'מה סביצ\'ה דג ים? האם ללא גלוטן?',a:'סביצ\'ה דניס על טוסטונים, אבוקדו, צ\'ילי, צנונית, עגבניות, כוסברה, בצל סגול, שמן זית, רוטב פיקנטי.\nללא גלוטן = ללא טוסטונים.'},
+  {cat:0,sub:'ראשונות',q:'מה חשוב בסשימי סלמון קליאנטה?',a:'הסלמון נא לחלוטין אך מקבל צריבה קלה עם ברנר מלמעלה.\nמרכיבים: שמן זית קורונייקי, סויה קוג\'י, חלפיניו קלוי ובצל, לימון, קריספי שאלוט, בצלים ירוקים.'},
+  {cat:0,sub:'ראשונות',q:'מה קרפצ\'יו פילה בקר? מה אלרגן?',a:'ויניגרט אגוזים, בלסמי וצימוקי שרי. סלטון: ארטישוק צלוי, רוקט ובצל סגול.\nמכיל אגוזים. ללא גלוטן.'},
+  {cat:0,sub:'ראשונות',q:'כרובית בטמפורה — האם טבעוני? מה הרוטב?',a:'טבעוני! פרחי כרובית בטמפורה. רוטב: טחינה, אריסה, לימון כבוש, פטרוזיליה.\nניתן לבקש רוטב בצד.'},
+  {cat:0,sub:'ראשונות',q:'מה מרק קטאלוני? האם טבעוני?',a:'ציר ירקות, בטטה, חומוס ועדשים כתומות. קרוטוני שום ועירית.\nטבעוני!'},
+  {cat:0,sub:'ראשונות',q:'מה פריטי דה מארה?',a:'קוביות מוסר ים מטוגנות. עם 3 איולי: שום ירוק, פלפלים מעושנים, לימון ועירית. מוגש עם פלח לימון.'},
+  {cat:0,sub:'ראשונות',q:'חציל בטאבון — האם טבעוני? ללא חריף?',a:'טבעוני! חציל שרוף, טחינת הר ברכה, סלטון עגבניות/פלפל חריף/בצל.\nללא חריף = ללא הסלטון.'},
+  {cat:0,sub:'ראשונות',q:'מה חשוב בסלקים צלויים בטאבון?',a:'על יוגורט יווני, ויניגרט רימונים, שקדים, פקאן. ללא גלוטן.\nיוגורט חלבי — לא ניתן להוציא. ניתן ללא אגוזים.'},
+  {cat:0,sub:'סלטים',q:'מה מרכיבי סלט מרקונה?',a:'עלים ירוקים, חסה, משמש אוזבקי, שקדים קלויים, גבינת מנצ\'גו.\nויניגרט חומץ שרי והדרים.'},
+  {cat:0,sub:'סלטים',q:'מה מרכיבי סלט מיקונוס?',a:'בייבי מלפפון, עגבניות מאגי, בצל סגול, פלפלים, זיתי קלמטה, גבינת פטה.\nשמן זית, לימון ואורגנו.'},
+  {cat:0,sub:'סלטים',q:'מה מרכיבי סלט פרסקו?',a:'עוף צלוי בגריל, חסה סלנובה, רוקט, בצל ירוק וסגול, צנונית, בטטות, עדשים שחורות, פקאן.\nשמן זית, לימון, סילאן וטחינה גולמית.'},
+  {cat:0,sub:'מאפים',q:'מה הבצק של הפיצות?',a:'בצק נאפוליטני — תערובת קמחים איטלקיים. תסיסה מוקדמת + התפחה 72 שעות.'},
+  {cat:0,sub:'מאפים',q:'מה פיצה טארטופו?',a:'קרם פארמג\'יאנו ופקורינו, כמהין שחורות, פטריות פורטובלו, מוצרלה פרסקה, בזיליקום, בצל מקורמל בבלסמי.'},
+  {cat:0,sub:'מאפים',q:'מה לחמאג\'ון ירושלמי? מה אלרגן?',a:'מעורב ירושלמי (כבד, פרגית, בקר, טלה), צנוברים, פטרוזיליה, טחינה לבנה וסלטון פיקנטי.\nמכיל צנוברים. ללא חריף = ללא הסלטון.'},
+  {cat:0,sub:'פסטות',q:'מה ספגטיני דגים סיציליאני?',a:'100 גרם פילה לברק, ספגטיני ברוטב עגבניות, עגבניות שרי, אנשובי אורטיז, צ\'ילי קלברזה, קונפי שום, אורגנו, פנקו. ניתן להוציא צ\'ילי.'},
+  {cat:0,sub:'פסטות',q:'מה קונקילה אלפורנו?',a:'קונכיות, חמאת עגבניות שרי, פרמג\'יאנו, עגבניות שרי, פנקו, בזיליקום, מוצרלה.\nנאפית בטאבון — קראסט + הקרמת גבינה.'},
+  {cat:0,sub:'פסטות',q:'מה פאפארדלה אסאדו?',a:'אסאדו מפורק, רוטב עגבניות צלויות עם ירקות שורש, ציר בקר ויין אדום, שמן זית ובזיליקום.'},
+  {cat:0,sub:'פסטות',q:'מה טאליוליני טארטופו? מה מכיל?',a:'טאליוליני טרי, קרם שמנת, כמהין שחורות, פקורינו, פטריות צלויות, בזיליקום.\nמכיל שום ויין.'},
+  {cat:0,sub:'בשרים ודגים',q:'מה פילה לברק ים תיכוני?',a:'לברק בגריל על תבשיל עגבניות פיקנטי, ארטישוק, זיתי טאסוס, צימוקי עגבניות, בזיליקום ואורגנו.\nמוגש עם חצי פוקצ\'ה.'},
+  {cat:0,sub:'בשרים ודגים',q:'מה לא ניתן לשנות בפילה סלמון אטלנטי?',a:'לא ניתן לשנות שום דבר ברוטב! קרם שמנת ולימון, תרד, דלעת, שקדים. חלבי.'},
+  {cat:0,sub:'בשרים ודגים',q:'מה כבדי עוף Porto Vino? מה לא ניתן?',a:'כבדי עוף, בצלים מקורמלים ביין פורט, חומץ שרי, על פירה עם בצל קריספי ועירית.\nלא ניתן להחליף את הפירה!'},
+  {cat:0,sub:'בשרים ודגים',q:'מה סינייה טלה? מה לא ניתן להוציא?',a:'טלה קצוץ, צנוברים, טחינה, על חצילים ועגבניות, בטאבון במעטפת בצק.\nצנוברים + חציל + עגבניות — לא ניתן להוציא!'},
+  {cat:0,sub:'בשרים ודגים',q:'מה עדאנה קבב?',a:'4 קבב טורקי בקר וכבש, טחינה וטחינה כתומה (אריסה+לימון כבוש).\nעל פוקצ\'ה עם עגבניה, בצל ופלפל חריף קלויים בטאבון.'},
+  {cat:0,sub:'המבורגרים',q:'מה ההבדל בין 3 ההמבורגרים?',a:'קפאסה — איולי שום + ציפוטלה פיקנטי\nברצלונה — ביצת עין + בצל מקורמל + רומסקו (שקדים!)\nמונאקו — פטריות + אווז מעושן + איולי כמהין'},
+  {cat:0,sub:'המבורגרים',q:'מה המבורגר טבעוני?',a:'"רדיפיין מיט", חסה, עגבניה, בצל סגול. איולי טבעוני.'},
+  {cat:0,sub:'קינוחים',q:'מה הקינוח הטבעוני?',a:'מלבי — מלבינה יאללה: מלבי טבעוני על קרם קוקוס, מי ורדים ורימונים, קדאיף וגלידת פיסטוק.'},
+  {cat:0,sub:'קינוחים',q:'מה לוטוס לבן?',a:'קראנץ\' עוגיות לוטוס, פרפה קוקוס, גנאש שוקולד לבן ופסיפלורה.\nעל רוטב מנגו, מרנג קוקוס וקולי פטל אדום.'},
+  {cat:0,sub:'קינוחים',q:'מה שפרה?',a:'הגלידרייה הצמודה למסעדה — גלידות, קינוחים מושחתים, קרפים ופנקייקים. ניתן למכירה ללקוחות קפאסה.'},
+  {cat:0,sub:'תוספות וטבעוני',q:'מה ההבדל בין טבעוני לצמחוני?',a:'צמחוני — לא אוכל בשר.\nטבעוני — לא אוכל בשר, חלב, ביצים וכל מוצר מהחי.'},
+  {cat:0,sub:'תוספות וטבעוני',q:'מה התוספות? עם אילו מנות?',a:'צ\'יפס, פירה, פאטאטאס בראבאס, סלט ירוק, הירוקים של קפאסה.\nמוגשות עם: לברק פתוח, פרגית, שניצל, אנטריקוט. גם בנפרד.'},
+  {cat:0,sub:'תוספות וטבעוני',q:'מה פאטאטאס בראבאס? אלרגן?',a:'קוביות תפ"א מטוגנות, רוטב רומסקו, איולי שום, עירית.\nרומסקו — מכיל שקדים!'},
+
+  // ALCOHOL
+  {cat:1,sub:'וודקה',q:'מקור וודקה ופירוש השם?',a:'רוסיה או פולין (ויכוח). מ"וודה" (מים) — "מים קטנים", או מהלטינית vita — "מי החיים".'},
+  {cat:1,sub:'וודקה',q:'מה מייחד בלוגה נובל, טרנסאטלנטיק וגולד ליין?',a:'נובל — פקק הרמטי אקולוגי, דגנים אורגניים.\nטרנסאטלנטיק — חול קוורץ + מסנן כסף, 45 יום יישון.\nגולד ליין — 6 מחזורי סינון, 90 יום יישון ברזל, מספר סידורי + פקק שעווה.'},
+  {cat:1,sub:'וודקה',q:'מה הסיפור של סטולי?',a:'לא רשמו סימן מסחרי — כל אחד יכול לייצר בשם זהה! יצר חיקויים רבים.\nעלית: זיקוק כפול + הקפאה ב-18 מינוס.'},
+  {cat:1,sub:'וודקה',q:'מה אבסולוט (וודקת הבית)? אילו טעמים?',a:'שוודיה, פרנו ריקארד, 40% חיטה.\nטעמים: וניל, אפיץ\' (אפרסק), רובי רד (אשכולית), פירס (אגס), ציטרון, פפר ועוד.'},
+  {cat:1,sub:'וודקה',q:'מה מייחד סירוק וגרייגוס?',a:'סירוק — צרפת, מענבים! 5 זיקוקים, ללא גלוטן, לא כשרה.\nגרייגוס — חבל קוניאק, 100% חיטה, 5 שלבים. בקמפאי: ניחוח אגס.'},
+  {cat:1,sub:'ג\'ין',q:'מקור הג\'ין והקשר לטוניק?',a:'כנראה הרופא ההולנדי פרנסיסקוס סילביוס. חיילים בריטים ערבבו כינין (תרופה למלריה) עם מים → "טוניק". הוסיפו לג\'ין.'},
+  {cat:1,sub:'ג\'ין',q:'9 מרכיבים בוטניים של ביפאיטר (ג\'ין הבית)?',a:'ערער, שורש אנג\'ליקה, זרעי אנג\'ליקה, זרעי כוסברה, ליקריץ, שקדים מרים, שורש אירוס האדמה, תפוזים מסביליה, קליפות לימון.\n40%. גם: פינק (תות) ובלאד אורנג\' (תפוז דם).'},
+  {cat:1,sub:'ג\'ין',q:'מה מייחד ביפאיטר 24?',a:'12 צמחי תיבול, השריה 24 שעות + זיקוק דודי.\nייחודי: תה סנצ\'ה יפני + תה ירוק סיני. 45% אלכוהול.'},
+  {cat:1,sub:'ג\'ין',q:'מה מייחד טאנקרי?',a:'4 מרכיבים קלאסיים: ערער, כוסברה מפולפלת, שוש, אנג\'ליקה.\nבקבוק בצורת שייקר מ-1920. חותמת: אננס — סמל אירוח.'},
+  {cat:1,sub:'ג\'ין',q:'מה מייחד סיטאדל?',a:'צרפת, 1996. 19 מרכיבים בוטניים. 4 זיקוקים — הרביעי בחביות קוניאק, כחיקוי הגעת ג\'ין בספינות.'},
+  {cat:1,sub:'ג\'ין',q:'מה מייחד הנדריקס? מי בחר את השם?',a:'ג\'אנט שיד רוברטס (יום הולדת 99) בחרה את שם הגנן שלה.\n11 מרכיבים + ורדים בולגריים + מלפפונים ירוקים. 41.4%.'},
+  {cat:1,sub:'ג\'ין',q:'מה מייחד מאנקי 47?',a:'יער השחור, גרמניה. 47 מרכיבים בוטניים (מכאן 47).\nתמונת הקוף = הנצחת מקס הקוף מגן החיות של קולינס.'},
+  {cat:1,sub:'רום',q:'מה רום ומה הוואנה 3 (הבית)?',a:'מופק מקנה סוכר. הוואנה 3 — 100% קובני, 3 שנים יישון.\nבסיס לקוקטיילים: מוחיטו ודאקירי.'},
+  {cat:1,sub:'רום',q:'מה פלנטיישן 3 כוכבים?',a:'שילוב 3 איים: ברבדוס (2-3 שנים), טרינידד (צעיר), ג\'מייקה (10 שנים).\n3 כוכבים = 3 האיים. מיועד לקוקטיילים.'},
+  {cat:1,sub:'רום',q:'מה פלנטיישן אננס?',a:'2 סוגי רום בהשרייה של אננסים. ניחוחות: אפרסק, תפוז, שזיף, מרציפן, וניל.\nהושרה מספר של צ\'רלס דיקנס!'},
+  {cat:1,sub:'טקילה/מזקל',q:'מה הדרישות לטקילה?',a:'מיוצרת במקסיקו, לפחות 51% אגבה כחולה, חותמת רשמית עם מספור מזקקה, 35%-49% אלכוהול.'},
+  {cat:1,sub:'טקילה/מזקל',q:'מה ההבדל בין טקילה למזקל?',a:'טקילה — רק אגבה כחולה, תנאים מחמירים.\nמזקל — כל משקה מבוסס אגבה שאינו טקילה, ממינים שונים, לרוב מעושן יותר.'},
+  {cat:1,sub:'טקילה/מזקל',q:'מה אולמקה בלאנקו לעומת גולד?',a:'בלאנקו (הבית) — מבוקבקת מיד לאחר הזיקוק, ארומות עשב ופלפל ירוק, 38%.\nגולד — בלאנקו + אנייחו, פירותי עם עץ ועשן.'},
+  {cat:1,sub:'ויסקי',q:'מה 5 אזורי הסקוטש?',a:'ספייסייד — מתקתק, מעט עשן, פרחוני.\nאיילה — מלוח, יוד, עישון כבד.\nאיים — לרוב עדין.\nהיילנדס — עדין עד מעושן, פרחוני.\nלואולנדס — אלגנטי, עדין, לרוב זיקוק משולש.'},
+  {cat:1,sub:'ויסקי',q:'מה גלנליווט (מותג הבית)? מה מייחד אותו?',a:'מותג הבית! מזקקה סקוטית ראשונה ברישיון (1824). יצר את סגנון הספייסייד.\nטעם: אלגנטי, פרחי, מתיקות דבשית.'},
+  {cat:1,sub:'ויסקי',q:'פרטי סדרת גלנליווט — 4 גרסאות',a:'פאונדרס רזרב — מחווה למייסד, קרמי ופירותי.\n15 — חביות אלון צרפתי (כמו קוניאק), קינמון וציפורן.\n18 — גימור שרי, כמעט דבשי, וניל ופירות יער.\n21 — נדיר! שרי ספרדי + אלון אמריקאי, 21+ שנים.'},
+  {cat:1,sub:'ויסקי',q:'מה גלנפידיך? פרטי 3 גרסאות',a:'ספייסייד 1886. הנמכר ביותר בעולם (20% נתח שוק).\n12 — 12 שנים, למתחיל, 43%.\n15 — 4 שלבי יישון (סולרה ואט), 43%.\n18 — שרי אולורוסו → בורבון, למתקדמים, 43%.'},
+  {cat:1,sub:'ויסקי',q:'מה ג\'יימסון? ג\'יימסון בלאק?',a:'ויסקי אירי, 1780. 3 זיקוקים (עדין, ללא עשן). חביות אלון אמריקאיות.\nבלאק — חביות חרוכות. ארומת חמאה, פאדג\', טופי. סיומת ארוכה של וניל.'},
+  {cat:1,sub:'ויסקי',q:'מה ג\'ק דניאלס? ג\'נטלמן ג\'ק?',a:'טנסי ויסקי. 51%+ תירס. סינון פחם מייפל. 40%.\nג\'נטלמן ג\'ק — סינון כפול, חלק יותר.'},
+  {cat:1,sub:'ויסקי',q:'מה שיבאס מיזונארה? כמה תערובות?',a:'ראשון בעולם בחביות אלון יפניות (מיזונארה). אגס ותפוזים.\nשיבאס 12 — 35 תערובות. שיבאס 18 — 25 ("חתימת זהב").'},
+  {cat:1,sub:'ויסקי',q:'מה בלנטיינס? קראון רויאל?',a:'בלנטיינס — הנמכר באירופה! 52+ מאלטים. פיינסט — הבלנד הטוב 2020.\nקראון רויאל — ויסקי קנדי, נוצר 1939 למלך ג\'ורג\' השישי. שק לבד סגול.'},
+  {cat:1,sub:'קוניאק',q:'מה קוניאק ומה רמות היישון?',a:'ברנדי צרפתי מענבים, זיקוק כפול (אלמביק), 40%.\nVS — 2+, VSOP — 4+, XO — 6+ (מ-2016: 10+), Prestige — 40-100+ שנה.'},
+  {cat:1,sub:'קוניאק',q:'מה ייחוד הנסי VS?',a:'הנסי VS מיושן לפחות 8 שנים — למרות שה-VS בד"כ = 3-5 שנים!\nנתח שוק: הנסי = 40% מהצריכה העולמית.'},
+  {cat:1,sub:'ליקר/אפריטיף',q:'הגדרות: ליקר, אפריטיף, דז\'סטיף',a:'ליקר — אלכוהולי מתוק (10%+ סוכר), 15-55% אלכוהול.\nאפריטיף — לפני הארוחה.\nדז\'סטיף — בסוף הארוחה.'},
+  {cat:1,sub:'ליקר/אפריטיף',q:'מה קמפרי לעומת אפרול?',a:'קמפרי — ~60 עשבים ותבלינים. 25-28.5%. כשר (הרב הראשי שלישי שיודע המתכון!). מר ויותר כהה.\nאפרול — 11%! פחות מר, בהיר יותר.'},
+  {cat:1,sub:'ליקר/אפריטיף',q:'מה אמרטו דיסארונו? מה בנדיקטין?',a:'אמרטו — גלעיני משמשים (לא שקדים!), קרמל, תמצית תבלינים, 20%. מ-1525.\nבנדיקטין — "קיסר הליקרים". 27 צמחים, 7 שנים לבקבוק.'},
+  {cat:1,sub:'ליקר/אפריטיף',q:'מה ייגרמייסטר? מה בחרובקה?',a:'ייגרמייסטר — ~56 עשבי תיבול גרמני. מקור רפואי.\nבחרובקה — 32 עשבים, 38%, 200+ שנה, שוט קר. דז\'סטיף.'},
+  {cat:1,sub:'בירה',q:'מה ההבדל בין אייל, לאגר ובירת חיטה?',a:'אייל — תסיסה עילית חמה, מהיר (שבועיים).\nלאגר — תסיסה תחתית קרה, בהיר ומוגז.\nחיטה — אייל + חיטה גבוהה, עכור/מעונן.'},
+  {cat:1,sub:'בירה',q:'חביות ובקבוקי בירה במסעדה?',a:'חביות: הייניקן (לאגר, 5%), גולדסטאר (דונקל, 4.9%), פאולנר (חיטה, 5.5%, 4 רכיבים).\nבקבוקים: הייניקן 0.0, גולדסטאר UF.'},
+
+  // DRINKS
+  {cat:2,sub:'שייקים',q:'מרכיבי שייק יאסו',a:'חופן נענע\n120 מ"ל מיץ תפוזים\n50 מ"ל מי סוכר\n20 מ"ל מחית פסיפלורה\nכף וחצי קרח\nקישוט: פלח תפוז'},
+  {cat:2,sub:'שייקים',q:'מרכיבי שייק יווניה',a:'2 כפיות פירות יער\n20 מ"ל מחית פסיפלורה\n20 מ"ל מחית מנגו\n120 מ"ל חלב קוקוס\n50 מ"ל מי סוכר\nכף וחצי קרח\nקישוט: כפית פירות יער'},
+  {cat:2,sub:'שייקים',q:'מרכיבי שייק נענע מיסו',a:'3 חתיכות אננס קפוא\n3 חתיכות מלון קפוא\n2 כפיות פירות יער\n120 מ"ל לימונדה\n50 מ"ל מי סוכר\nכף וחצי קרח\nקישוט: תפרחת נענע + כפית פירות יער'},
+  {cat:2,sub:'שייקים',q:'מרכיבי שייק בום פאסה',a:'2 פלחי תפוז\n80 מ"ל מי סוכר\n60 מ"ל לימונדה\n40 מ"ל מיץ לימון\n20 מ"ל מחית מנגו\nכף וחצי קרח\nקישוט: פלח לימון + כפית פירות יער'},
+  {cat:2,sub:'קוקטיילי הבית',q:'COCO Berry — מרכיבים, כוס, גרניש',a:'22.5 ג\'יימסון\n22.5 פוזטי קקאו\n22.5 שראב תותים ביתי\n22.5 יין פורט אדום\nכוס: ניק&נורה\nגרניש: פס שוקולד לבן, עישון קינמון, קלוש'},
+  {cat:2,sub:'קוקטיילי הבית',q:'Mango Velvet — מרכיבים, כוס, גרניש',a:'22.5 רום בהשריית טימין\n15 מי דבש\n15 מיץ לימון\n7.5 מחית מנגו בוארון\n7.5 ליקר מנגו גיפארד\nכוס: ולווט\nגרניש: קציפת מרנג + שריפה עם ברנר, גלגל לימון מיובש'},
+  {cat:2,sub:'קוקטיילי הבית',q:'אמורה מיו — מרכיבים, כוס, גרניש',a:'45 אבסולוט ציטרון\n30 קורדיאל בזיליקום וליים\n22.5 מיץ אננס\n2 דש סלרי ביטרס\nכוס: סאוור\nגרניש: תפרחת בזיליקום גדולה'},
+  {cat:2,sub:'קוקטיילי הבית',q:'אלכסנדריה — מרכיבים, כוס, גרניש',a:'45 טקילה בהשריית היביסקוס וסומאק\n15 ליקר אשכולית אדומה גיפארד\n22.5 מיץ לימון\n22.5 סירופ היביסקוס ביתי\n2 דש אורנג\' ביטר + 2 דש מקציף\nכוס: קופ\nגרניש: פס אבקת סומאק על הקצף'},
+  {cat:2,sub:'קוקטיילי הבית',q:'הקולות של פיראוס — מרכיבים, כוס, גרניש',a:'30 אוזו בהשריית זעתר\n20 מיץ לימון\n15 סירופ דבש ותמרים\nסגירה: ג\'ינג\'ר ביר\nכוס: גובלט\nגרניש: גלגל תפוז מיובש'},
+  {cat:2,sub:'קלאסיים',q:'אולד פאשן — כתישה, מרכיבים, כוס, גרניש',a:'כתישה: שקיק סוכר + 2 דש אנגוסטורה + דש סודה\n60 ג\'ים בים לבן\nכוס: לואו בול, בנייה, צ\'אנק קרח\nגרניש: טוויל תפוז'},
+  {cat:2,sub:'קלאסיים',q:'נגרוני — מרכיבים, כוס, גרניש',a:'30 ביפאיטר\n30 קמפרי\n30 אפרוס אדום\nכוס: לואו בול, כוס ערבוב, צ\'אנק קרח\nגרניש: טוויל תפוז'},
+  {cat:2,sub:'קלאסיים',q:'מרגריטה קלאסית — מרכיבים, כוס, גרניש',a:'50 אולמקה בלאנקו\n30 מיץ לימון\n22.5 דריי קירסאו\n7.5 מי סוכר\nכוס: קופ, שקשוק, סינון כפול\nגרניש: כתר מלח + גלגל לימון מיובש'},
+  {cat:2,sub:'קלאסיים',q:'דאקירי קלאסי — מרכיבים, כוס, גרניש',a:'45 הוואנה 3\n22.5 מיץ לימון\n15 סוכר\nכוס: ניק&נורה, שקשוק, סינון כפול\nגרניש: גלגל לימון מיובש'},
+  {cat:2,sub:'קלאסיים',q:'מוחיטו — כתישה, מרכיבים, כוס, גרניש',a:'כתישה: שקיק סוכר חום + 3 וודג\' לימון + 6 עלי נענע\n45 הוואנה 3\n30 מיץ לימון\n20 סוכר\nסגירה: סודה\nכוס: קולינס, בנייה על קרח גרוס\nגרניש: תפרחת נענע + גלגל לימון מיובש'},
+  {cat:2,sub:'קלאסיים',q:'פרנץ\' 75 — מרכיבים, כוס, גרניש',a:'30 ביפאיטר\n15 מיץ לימון\n15 מי סוכר\nסגירה: פרוסקו\nכוס: פלוט, שקשוק, סינון כפול\nגרניש: טוויל לימון'},
+  {cat:2,sub:'קלאסיים',q:'קוסמופוליטן — מרכיבים, כוס, גרניש',a:'40 אבסולוט ציטרון\n30 חמוציות\n15 דריי קירסאו\n15 מיץ לימון\nכוס: קופ, שקשוק ארוך, סינון כפול\nגרניש: טוויל לימון'},
+  {cat:2,sub:'קלאסיים',q:'קלובר קלאב — מרכיבים, כוס, גרניש',a:'45 ביפאיטר\n22.5 מיץ לימון\n22.5 מונין פטל שחור\n2 דש מקציף\nכוס: קופ, שקשוק ארוך, סינון כפול\nגרניש: 3 לבבות על הקצף'},
+  {cat:2,sub:'קלאסיים',q:'פאלומה — מרכיבים, כוס, גרניש',a:'45 אולמקה בלאנקו\n15 מיץ לימון\nקמצוץ מלח\nסגירה: אשכולית ורודה מוגזת\nכוס: קולינס, בנייה\nגרניש: גלגל תפוז מיובש'},
+  {cat:2,sub:'קלאסיים',q:'ג\'סמין — מרכיבים, כוס, גרניש',a:'45 ביפאיטר\n22.5 מיץ לימון\n7.5 מי סוכר\n7.5 קמפרי\n7.5 דריי קירסאו\nכוס: קופ, שקשוק ארוך, סינון כפול\nגרניש: גלגל תפוז מיובש'},
+  {cat:2,sub:'קלאסיים',q:'סיינט טרופז — מרכיבים, כוס, גרניש',a:'30 אבסולוט ציטרון\n30 ליקר סמבוק גיפארד\n15 מיץ לימון\nסגירה: סודה\nכוס: קולינס\nגרניש: גלגל לימון מיובש'},
+  {cat:2,sub:'קלאסיים',q:'סייד קאר — מרכיבים, כוס, גרניש',a:'30 הנסי VS\n15 מיץ לימון\n15 דריי קירסאו\n7.5 מי סוכר\nכוס: ניק&נורה, שקשוק ארוך, סינון כפול\nגרניש: טוויל תפוז + איבוק אבקת סוכר'},
+  {cat:2,sub:'שפריצים',q:'נגרוני סבגליאטו — מרכיבים, כוס, גרניש',a:'30 קמפרי\n30 אפרוס אדום\n30 פרוסקו\nכוס: סאוור → לואו בול, בנייה\nגרניש: טוויל תפוז'},
+  {cat:2,sub:'שפריצים',q:'פאמפל/קמפרי שפריץ — מרכיבים, כוס, גרניש',a:'60 פאמפל/קמפרי\n90 פרוסקו\n30 סודה\nכוס: יין, בנייה\nגרניש: 2 חצאי תפוז טרי'},
+  {cat:2,sub:'שפריצים',q:'הוגו שפריץ — מרכיבים, כוס, גרניש',a:'60 ליקר סמבוק גיפארד\n90 פרוסקו\n30 סודה\nכוס: יין, בנייה\nגרניש: תפרחת נענע גדולה'},
+  {cat:2,sub:'שפריצים',q:'לימונצ\'לו שפריץ — מרכיבים, כוס, גרניש',a:'60 לימונצ\'לו\n90 פרוסקו\n30 סודה\nכוס: יין, בנייה\nגרניש: גלגל לימון מיובש'},
+];
+
+const QUIZ = [
+  {cat:0,sub:'מנות פתיחה',type:'multi',q:'אילו מטבלים עם פוקצ\'ת הבית?',opts:['סלסת עגבניות','שום קונפי','טפנד זיתים','סלסה ורדה','חומוס','טחינה'],ans:[0,1,2,3]},
+  {cat:0,sub:'המבורגרים',type:'single',q:'איזה המבורגר מכיל ביצת עין?',opts:['קפאסה','ברצלונה','מונאקו','טבעוני'],ans:1},
+  {cat:0,sub:'תוספות וטבעוני',type:'single',q:'מה מרכיב האלרגן בפאטאטאס בראבאס?',opts:['גלוטן','שקדים','בוטנים','שומשום'],ans:1},
+  {cat:0,sub:'מאפים',type:'single',q:'כמה שעות מתפיח הבצק הנאפוליטני?',opts:['12','24','48','72'],ans:3},
+  {cat:0,sub:'בשרים ודגים',type:'single',q:'מה לא ניתן לשנות בפילה סלמון אטלנטי?',opts:['סוג הדג','הרוטב','הגרניש','כמות הפסטה'],ans:1},
+  {cat:0,sub:'תוספות וטבעוני',type:'single',q:'האם פירה קפאסה חלבי?',opts:['כן, חלבי','לא, הפירה אינו חלבי'],ans:1},
+  {cat:0,sub:'ראשונות',type:'multi',q:'אילו מנות טבעוניות?',opts:['כרובית בטמפורה','מרק קטאלוני','חציל בטאבון','פריטי דה מארה','המבורגר טבעוני','שניצל קפאסה'],ans:[0,1,2,4]},
+  {cat:0,sub:'בשרים ודגים',type:'single',q:'מה לא ניתן להוציא מסינייה טלה?',opts:['טחינה','צנוברים','שמן זית','כוסברה'],ans:1},
+  {cat:0,sub:'המבורגרים',type:'open',q:'פרטי את 3 ההמבורגרים — מה מייחד כל אחד?',a:'קפאסה: איולי שום + ציפוטלה פיקנטי\nברצלונה: ביצת עין + בצל מקורמל + רומסקו (שקדים!)\nמונאקו: פטריות + אווז מעושן + איולי כמהין'},
+  {cat:1,sub:'וודקה',type:'single',q:'מה וודקת הבית של קפאסה?',opts:['בלוגה נובל','אבסולוט','סירוק','גרייגוס'],ans:1},
+  {cat:1,sub:'ג\'ין',type:'single',q:'כמה מרכיבים בוטניים בביפאיטר?',opts:['7','9','11','19'],ans:1},
+  {cat:1,sub:'וודקה',type:'single',q:'מה ייחוד וודקת סירוק?',opts:['מחיטה שוודית','מענבים, ללא גלוטן, לא כשרה','מתפ"א, כשרה','מזוקקת 3 פעמים'],ans:1},
+  {cat:1,sub:'קוניאק',type:'single',q:'רמת יישון VS בקוניאק?',opts:['שנה','שנתיים','4 שנים','10 שנים'],ans:1},
+  {cat:1,sub:'ליקר/אפריטיף',type:'single',q:'אחוז אלכוהול של קמפרי לעומת אפרול?',opts:['קמפרי 11%, אפרול 25%','קמפרי 25-28.5%, אפרול 11%','שניהם 20%'],ans:1},
+  {cat:1,sub:'ויסקי',type:'single',q:'מה מותג ויסקי הבית?',opts:['גלנפידיך','שיבאס','גלנליווט','ג\'יימסון'],ans:2},
+  {cat:1,sub:'ויסקי',type:'single',q:'מה מייחד שיבאס מיזונארה?',opts:['יושן 21 שנה','הראשון בחביות אלון יפניות','25 תערובות','מיוצר ביפן'],ans:1},
+  {cat:1,sub:'טקילה/מזקל',type:'open',q:'מה ההבדל בין טקילה למזקל?',a:'טקילה — אגבה כחולה בלבד, אזורים מורשים, 51%+, 35-49% אלכוהול.\nמזקל — כל משקה מבוסס אגבה שאינו טקילה, ממינים שונים, לרוב מעושן.'},
+  {cat:1,sub:'קוניאק',type:'open',q:'פרטי 4 רמות יישון קוניאק',a:'VS — 2+ שנים\nVSOP — 4+ שנים\nXO — 6+ שנים (מ-2016: 10+)\nPrestige — 40-100+ שנה'},
+  {cat:2,sub:'קוקטיילי הבית',type:'single',q:'כוס הגשה של COCO Berry?',opts:['לואו בול','קופ','ניק&נורה','גובלט'],ans:2},
+  {cat:2,sub:'קלאסיים',type:'single',q:'כוס הגשה של נגרוני?',opts:['קופ','ניק&נורה','לואו בול','פלוט'],ans:2},
+  {cat:2,sub:'קלאסיים',type:'single',q:'כוס הגשה של מרגריטה קלאסית?',opts:['ניק&נורה','לואו בול','קופ','פלוט'],ans:2},
+  {cat:2,sub:'שייקים',type:'single',q:'איזה שייק מכיל חלב קוקוס?',opts:['יאסו','יווניה','נענע מיסו','בום פאסה'],ans:1},
+  {cat:2,sub:'קוקטיילי הבית',type:'single',q:'מה האלכוהול הבסיסי באלכסנדריה?',opts:['ג\'ין','ווודקה','טקילה בהשריית היביסקוס וסומאק','רום'],ans:2},
+  {cat:2,sub:'קלאסיים',type:'single',q:'מה סוגר את הפרנץ\' 75?',opts:['סודה','ג\'ינג\'ר ביר','פרוסקו','מי סוכר'],ans:2},
+  {cat:2,sub:'קלאסיים',type:'single',q:'כמה עלי נענע במוחיטו?',opts:['4','6','8','10'],ans:1},
+  {cat:2,sub:'קוקטיילי הבית',type:'single',q:'איזה קוקטייל מכיל אוזו?',opts:['COCO Berry','הקולות של פיראוס','אמורה מיו','אלכסנדריה'],ans:1},
+  {cat:2,sub:'שייקים',type:'open',q:'פרטי מרכיבי שייק יאסו עם כמויות',a:'חופן נענע, 120 מ"ל מיץ תפוזים, 50 מ"ל מי סוכר, 20 מ"ל מחית פסיפלורה, כף וחצי קרח. קישוט: פלח תפוז.'},
+  {cat:2,sub:'קוקטיילי הבית',type:'open',q:'פרטי COCO Berry — מרכיבים, כוס וגרניש',a:'22.5 ג\'יימסון, 22.5 פוזטי קקאו, 22.5 שראב תותים ביתי, 22.5 יין פורט אדום.\nכוס: ניק&נורה. גרניש: פס שוקולד לבן, עישון קינמון, קלוש.'},
+];
+
+const CC = ['c0','c1','c2'];
+let cat=0, sub='הכל', mode='flash';
+let cards=[], ci=0, qItems=[], qi=0, score=0, answered=[], done=false, selMulti=[], multiChecked=false;
+
+function getFlash(){let d=FLASH.filter(x=>x.cat===cat);return sub==='הכל'?d:d.filter(x=>x.sub===sub);}
+function getQuiz(){let d=QUIZ.filter(x=>x.cat===cat);return sub==='הכל'?d:d.filter(x=>x.sub===sub);}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
+
+function setCat(c){
+  cat=c;sub='הכל';
+  document.querySelectorAll('.cat-btn').forEach((b,i)=>{b.classList.toggle('active',i===c);});
+  buildSubs();reset();render();
+}
+function setSub(s){
+  sub=s;reset();render();
+  document.querySelectorAll('.sub-btn').forEach(b=>b.classList.toggle('active',b.dataset.sub===s));
+}
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.mode-btn').forEach((b,i)=>b.classList.toggle('active',['flash','quiz'][i]===m));
+  reset();render();
+}
+function buildSubs(){
+  const el=document.getElementById('sub-scroll');
+  el.innerHTML=SUBS[cat].map(s=>`<button class="sub-btn s${cat} ${s===sub?'active':''}" data-sub="${s}" onclick="setSub('${s}')">${s}</button>`).join('');
+}
+function reset(){
+  ci=0;qi=0;score=0;answered=[];done=false;selMulti=[];multiChecked=false;
+  cards=shuffle(getFlash());
+  qItems=shuffle(getQuiz());
+}
+
+function render(){
+  const el=document.getElementById('content');
+  el.innerHTML='';
+  if(mode==='flash') renderFlash(el);
+  else renderQuiz(el);
+  // counts
+  [0,1,2].forEach(i=>{
+    const f=FLASH.filter(x=>x.cat===i).length;
+    document.getElementById('cnt'+i).textContent=f+' כרטיסיות';
+  });
+}
+
+function renderFlash(el){
+  if(!cards.length){el.innerHTML='<div class="empty">אין כרטיסיות בתת-קטגוריה זו</div>';return;}
+  const c=cards[ci];
+  const pct=Math.round((ci/(cards.length-1||1))*100);
+  el.innerHTML=`
+    <div class="fc-meta">
+      <div class="fc-progress">
+        <span class="fc-num">${ci+1}/${cards.length}</span>
+        <div class="fc-bar"><div class="fc-bar-fill ${CC[cat]}" style="width:${pct}%"></div></div>
+      </div>
+      <button class="fc-shuffle" onclick="cards=shuffle(getFlash());ci=0;render()">ערבוב</button>
+    </div>
+    <div class="flashcard-wrap">
+      <div class="flashcard" id="fc" onclick="document.getElementById('fc').classList.toggle('revealed')">
+        <div class="fc-stripe ${CC[cat]}"></div>
+        <div class="fc-corner-glow ${CC[cat]}"></div>
+        <div>
+          <div class="fc-badge ${CC[cat]}">${c.sub}</div>
+          <div class="fc-question">${c.q}</div>
+        </div>
+        <div class="fc-answer">${c.a}</div>
+        <div class="fc-hint">לחצי לגילוי התשובה</div>
+      </div>
+    </div>
+    <div class="fc-nav">
+      <button class="fc-nav-btn" onclick="ci--;render()" ${ci===0?'disabled':''}>→</button>
+      <div class="fc-nav-center">${ci+1} מתוך ${cards.length}</div>
+      <button class="fc-nav-btn" onclick="ci++;render()" ${ci===cards.length-1?'disabled':''}>←</button>
+    </div>`;
+}
+
+function renderQuiz(el){
+  if(!qItems.length){el.innerHTML='<div class="empty">אין שאלות בתת-קטגוריה זו</div>';return;}
+  if(done){
+    const sc=qItems.filter(q=>q.type!=='open').length;
+    const pct=sc?Math.round(score/sc*100):0;
+    const msg=pct>=90?'מדהים! כמו ברמן אמיתי':pct>=70?'טוב מאוד, עוד קצת!':'המשיכי להתאמן!';
+    const sub2=pct>=90?`ענית נכון על ${score} מתוך ${sc} שאלות`:`שאלות פתוחות: ${qItems.filter(q=>q.type==='open').length}`;
+    el.innerHTML=`<div class="result-card">
+      <div class="result-glow ${CC[cat]}"></div>
+      <div class="result-score ${CC[cat]}">${score}<span style="font-size:32px">/${sc}</span></div>
+      <div class="result-label">ניקוד סופי</div>
+      <div class="result-msg">${msg}</div>
+      <div class="result-sub">${sub2}</div>
+      <button class="restart-btn" onclick="reset();render()">התחלה מחדש</button>
+    </div>`;return;
+  }
+  const q=qItems[qi];
+  const sc=qItems.filter(x=>x.type!=='open').length;
+  const isAns=answered[qi]!==undefined;
+  let qHTML='';
+  if(q.type==='single'){
+    qHTML=`<div class="options">${q.opts.map((o,i)=>{
+      let cls='opt';
+      if(isAns){cls+=' disabled';if(i===q.ans)cls+=' correct';else if(i===answered[qi]&&answered[qi]!==q.ans)cls+=' wrong';}
+      return `<button class="${cls}" onclick="if(answered[${qi}]===undefined){answered[${qi}]=${i};if(${i}===${q.ans})score++;render();}">${o}</button>`;
+    }).join('')}</div>`;
+  } else if(q.type==='multi'){
+    qHTML=`<div class="multi-opts">${q.opts.map((o,i)=>{
+      let cls='mopt';
+      if(multiChecked){if(q.ans.includes(i)&&selMulti.includes(i))cls+=' correct';else if(!q.ans.includes(i)&&selMulti.includes(i))cls+=' wrong';else if(q.ans.includes(i)&&!selMulti.includes(i))cls+=' missed';}
+      else if(selMulti.includes(i))cls+=' sel';
+      return `<button class="${cls}" onclick="${multiChecked?'':'toggleM('+i+')'}">${o}</button>`;
+    }).join('')}</div>${!multiChecked?`<button class="check-btn" onclick="checkM()">בדיקה</button>`:''}`;
+  } else {
+    qHTML=`<textarea class="open-textarea" placeholder="כתבי את תשובתך..."></textarea>
+      ${!isAns?`<button class="reveal-btn" onclick="answered[${qi}]=true;render()">הצגת תשובה</button>`:''}
+      <div class="answer-reveal ${CC[cat]}${isAns?' shown':''}">${q.a}</div>`;
+  }
+  const showNext=isAns||(q.type==='multi'&&multiChecked)||q.type==='open';
+  el.innerHTML=`
+    <div class="quiz-header">
+      <div class="quiz-stat">ניקוד<span>${score}/${sc}</span></div>
+      <div class="quiz-stat">שאלה<span>${qi+1}/${qItems.length}</span></div>
+    </div>
+    <div class="quiz-card">
+      <div class="qz-num">שאלה ${qi+1} מתוך ${qItems.length}</div>
+      <div class="qz-badge ${CC[cat]}">${q.sub}</div>
+      <div class="qz-question">${q.q}</div>
+      ${qHTML}
+    </div>
+    ${showNext?`<button class="next-btn ${CC[cat]}" onclick="nextQ()">${qi<qItems.length-1?'הבאה ←':'סיום וראיית תוצאות'}</button>`:''}`;
+}
+function toggleM(i){const idx=selMulti.indexOf(i);idx>-1?selMulti.splice(idx,1):selMulti.push(i);render();}
+function checkM(){multiChecked=true;const q=qItems[qi];if(q.ans.every(a=>selMulti.includes(a))&&selMulti.every(s=>q.ans.includes(s)))score++;answered[qi]=selMulti.slice();render();}
+function nextQ(){selMulti=[];multiChecked=false;qi++;if(qi>=qItems.length)done=true;render();}
+
+buildSubs();reset();render();
+</script>
+</body>
+</html>
