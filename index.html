@@ -61,24 +61,16 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .fc-num{font-size:13px;color:var(--muted)}
 .fc-bar{width:80px;height:3px;background:var(--border);border-radius:100px;overflow:hidden}
 .fc-bar-fill{height:100%;border-radius:100px;transition:width .4s ease}
-.fc-bar-fill.c0{background:var(--c0)}
-.fc-bar-fill.c1{background:var(--c1)}
-.fc-bar-fill.c2{background:var(--c2)}
+.fc-bar-fill.c0{background:var(--c0)}.fc-bar-fill.c1{background:var(--c1)}.fc-bar-fill.c2{background:var(--c2)}
 .fc-shuffle{background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:6px 14px;font-size:11px;color:var(--muted);cursor:pointer;font-family:'Heebo',sans-serif}
 .flashcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);min-height:280px;padding:28px 24px;cursor:pointer;position:relative;overflow:hidden;transition:transform .15s;display:flex;flex-direction:column;justify-content:space-between}
 .flashcard:active{transform:scale(.98)}
 .fc-stripe{position:absolute;top:0;right:0;width:4px;height:100%}
-.fc-stripe.c0{background:var(--c0)}
-.fc-stripe.c1{background:var(--c1)}
-.fc-stripe.c2{background:var(--c2)}
+.fc-stripe.c0{background:var(--c0)}.fc-stripe.c1{background:var(--c1)}.fc-stripe.c2{background:var(--c2)}
 .fc-corner-glow{position:absolute;top:-30px;left:-30px;width:120px;height:120px;border-radius:50%;opacity:.06;pointer-events:none}
-.fc-corner-glow.c0{background:var(--c0)}
-.fc-corner-glow.c1{background:var(--c1)}
-.fc-corner-glow.c2{background:var(--c2)}
+.fc-corner-glow.c0{background:var(--c0)}.fc-corner-glow.c1{background:var(--c1)}.fc-corner-glow.c2{background:var(--c2)}
 .fc-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:100px;margin-bottom:16px;align-self:flex-start}
-.fc-badge.c0{background:var(--c0b);color:var(--c0)}
-.fc-badge.c1{background:var(--c1b);color:var(--c1)}
-.fc-badge.c2{background:var(--c2b);color:var(--c2)}
+.fc-badge.c0{background:var(--c0b);color:var(--c0)}.fc-badge.c1{background:var(--c1b);color:var(--c1)}.fc-badge.c2{background:var(--c2b);color:var(--c2)}
 .fc-question{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;line-height:1.4;flex:1;display:flex;align-items:center}
 .fc-answer{font-size:14px;line-height:1.8;color:var(--muted);margin-top:20px;padding-top:20px;border-top:1px solid var(--border);white-space:pre-line;display:none;animation:fadeUp .3s ease}
 .flashcard.revealed .fc-answer{display:block}
@@ -95,12 +87,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:14px}
 .qz-num{font-size:11px;color:var(--muted);margin-bottom:6px}
 .qz-badge{display:inline-flex;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:14px}
-.qz-badge.c0{background:var(--c0b);color:var(--c0)}
-.qz-badge.c1{background:var(--c1b);color:var(--c1)}
-.qz-badge.c2{background:var(--c2b);color:var(--c2)}
+.qz-badge.c0{background:var(--c0b);color:var(--c0)}.qz-badge.c1{background:var(--c1b);color:var(--c1)}.qz-badge.c2{background:var(--c2b);color:var(--c2)}
 .qz-question{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;line-height:1.4;margin-bottom:20px}
-.open-textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:14px;font-family:'Heebo',sans-serif;color:var(--text);resize:none;min-height:80px;margin-bottom:12px;direction:rtl;outline:none;transition:border-color .2s}
-.open-textarea:focus{border-color:rgba(255,255,255,.2)}
+.open-textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:14px;font-family:'Heebo',sans-serif;color:var(--text);resize:none;min-height:80px;margin-bottom:12px;direction:rtl;outline:none}
 .reveal-btn{background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 18px;font-size:13px;color:var(--muted);cursor:pointer;font-family:'Heebo',sans-serif}
 .answer-reveal{margin-top:14px;padding:16px;border-radius:var(--radius-sm);font-size:14px;line-height:1.8;display:none;white-space:pre-line}
 .answer-reveal.shown{display:block;animation:fadeUp .3s ease}
@@ -108,19 +97,13 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .answer-reveal.c1{background:rgba(124,111,205,.08);border:1px solid rgba(124,111,205,.2);color:#b0a8e8}
 .answer-reveal.c2{background:rgba(192,91,106,.08);border:1px solid rgba(192,91,106,.2);color:#e8a0aa}
 .next-btn{width:100%;padding:16px;border-radius:var(--radius);font-size:15px;font-weight:600;font-family:'Heebo',sans-serif;cursor:pointer;border:none;transition:all .2s}
-.next-btn.c0{background:var(--c0);color:#0a0a0f}
-.next-btn.c1{background:var(--c1);color:#fff}
-.next-btn.c2{background:var(--c2);color:#fff}
+.next-btn.c0{background:var(--c0);color:#0a0a0f}.next-btn.c1{background:var(--c1);color:#fff}.next-btn.c2{background:var(--c2);color:#fff}
 .next-btn:active{transform:scale(.98);opacity:.9}
 .result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:48px 28px;text-align:center;position:relative;overflow:hidden}
 .result-glow{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:300px;height:300px;border-radius:50%;opacity:.08;pointer-events:none}
-.result-glow.c0{background:var(--c0)}
-.result-glow.c1{background:var(--c1)}
-.result-glow.c2{background:var(--c2)}
+.result-glow.c0{background:var(--c0)}.result-glow.c1{background:var(--c1)}.result-glow.c2{background:var(--c2)}
 .result-score{font-family:'Playfair Display',serif;font-size:72px;font-weight:900;line-height:1;margin-bottom:8px}
-.result-score.c0{color:var(--c0)}
-.result-score.c1{color:var(--c1)}
-.result-score.c2{color:var(--c2)}
+.result-score.c0{color:var(--c0)}.result-score.c1{color:var(--c1)}.result-score.c2{color:var(--c2)}
 .result-label{font-size:13px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px}
 .result-msg{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:8px;font-style:italic}
 .result-sub{font-size:14px;color:var(--muted);margin-bottom:36px}
@@ -147,65 +130,143 @@ const CAT_NAMES=['תפריט אוכל','עולם האלכוהול','שייקים
 const CAT_ICONS=['🍽️','🥃','🍹'];
 const CAT_LABELS=['תפריט אוכל','אלכוהול','שייקים'];
 let allData=[],cat=0,sub='הכל',mode='flash',cards=[],ci=0,qItems=[],qi=0,score=0,answered=[],done=false;
-function getFiltered(){let d=allData.filter(r=>r.cat===CAT_NAMES[cat]);return sub==='הכל'?d:d.filter(r=>r.sub===sub);}
-function getSubs(){const s=CAT_NAMES[cat];const u=[...new Set(allData.filter(r=>r.cat===s).map(r=>r.sub).filter(Boolean))];return['הכל',...u];}
+
+// Store subs globally so buttons can reference by index
+let currentSubs=[];
+
+function getFiltered(){
+  let d=allData.filter(r=>r.cat===CAT_NAMES[cat]);
+  return sub==='הכל'?d:d.filter(r=>r.sub===sub);
+}
+function getSubs(){
+  const s=CAT_NAMES[cat];
+  const u=[...new Set(allData.filter(r=>r.cat===s).map(r=>r.sub).filter(Boolean))];
+  return['הכל',...u];
+}
 function shuffle(a){return[...a].sort(()=>Math.random()-.5);}
-function reset(){ci=0;qi=0;score=0;answered=[];done=false;const d=getFiltered();cards=shuffle(d);qItems=shuffle(d);}
+function reset(){
+  ci=0;qi=0;score=0;answered=[];done=false;
+  const d=getFiltered();
+  cards=shuffle(d);
+  qItems=shuffle(d);
+}
 function setCat(c){cat=c;sub='הכל';reset();renderApp();}
-function setSub(s){sub=s;reset();renderApp();}
+function setSubByIndex(i){sub=currentSubs[i];reset();renderApp();}
 function setMode(m){mode=m;reset();renderApp();}
 function catCount(i){return allData.filter(r=>r.cat===CAT_NAMES[i]).length;}
 function fmt(a){return(a||'').replace(/\|/g,'\n');}
+
 function renderApp(){
-  const subs=getSubs();
+  currentSubs=getSubs();
+  const subBtns=currentSubs.map((s,i)=>
+    `<button class="sub-btn s${cat} ${s===sub?'active':''}" onclick="setSubByIndex(${i})">${s}</button>`
+  ).join('');
+
   document.getElementById('root').innerHTML=`<div class="app">
-    <div class="header"><div class="header-glow"></div><div class="header-logo">KEPASA</div><h1>מערכת <em>לימוד</em></h1><p class="header-sub">100% ברמנים • בחרי קטגוריה והתחילי</p></div>
-    <div class="cat-section"><div class="cat-grid">${CAT_LABELS.map((l,i)=>`<button class="cat-btn c${i} ${cat===i?'active':''}" onclick="setCat(${i})"><span class="cat-icon">${CAT_ICONS[i]}</span><div class="cat-label">${l}</div><div class="cat-count">${catCount(i)} כרטיסיות</div></button>`).join('')}</div></div>
-    <div class="sub-section"><div class="sub-scroll">${subs.map(s=>`<button class="sub-btn s${cat} ${s===sub?'active':''}" onclick="setSub(decodeURIComponent('${encodeURIComponent(s)}')">${s}</button>`).join('')}</div></div>
-    <div class="mode-section"><div class="mode-toggle"><button class="mode-btn ${mode==='flash'?'active':''}" onclick="setMode('flash')">✦ כרטיסיות זיכרון</button><button class="mode-btn ${mode==='quiz'?'active':''}" onclick="setMode('quiz')">◎ קוויז</button></div></div>
+    <div class="header">
+      <div class="header-glow"></div>
+      <div class="header-logo">KEPASA</div>
+      <h1>מערכת <em>לימוד</em></h1>
+      <p class="header-sub">100% ברמנים • בחרי קטגוריה והתחילי</p>
+    </div>
+    <div class="cat-section"><div class="cat-grid">
+      ${CAT_LABELS.map((l,i)=>`
+        <button class="cat-btn c${i} ${cat===i?'active':''}" onclick="setCat(${i})">
+          <span class="cat-icon">${CAT_ICONS[i]}</span>
+          <div class="cat-label">${l}</div>
+          <div class="cat-count">${catCount(i)} כרטיסיות</div>
+        </button>`).join('')}
+    </div></div>
+    <div class="sub-section"><div class="sub-scroll">${subBtns}</div></div>
+    <div class="mode-section"><div class="mode-toggle">
+      <button class="mode-btn ${mode==='flash'?'active':''}" onclick="setMode('flash')">✦ כרטיסיות זיכרון</button>
+      <button class="mode-btn ${mode==='quiz'?'active':''}" onclick="setMode('quiz')">◎ קוויז</button>
+    </div></div>
     <div class="content" id="content"></div>
   </div>`;
   renderContent();
 }
-function renderContent(){const el=document.getElementById('content');if(!el)return;mode==='flash'?renderFlash(el):renderQuiz(el);}
+
+function renderContent(){
+  const el=document.getElementById('content');
+  if(!el)return;
+  mode==='flash'?renderFlash(el):renderQuiz(el);
+}
+
 function renderFlash(el){
   if(!cards.length){el.innerHTML='<div class="empty">אין כרטיסיות בתת-קטגוריה זו</div>';return;}
   const c=cards[ci],pct=Math.round((ci/(cards.length-1||1))*100),ans=fmt(c.answer);
-  el.innerHTML=`<div class="fc-meta"><div class="fc-progress"><span class="fc-num">${ci+1}/${cards.length}</span><div class="fc-bar"><div class="fc-bar-fill c${cat}" style="width:${pct}%"></div></div></div><button class="fc-shuffle" onclick="cards=shuffle(getFiltered());ci=0;renderContent()">ערבוב</button></div>
-  <div class="flashcard" id="fc" onclick="document.getElementById('fc').classList.toggle('revealed')">
-    <div class="fc-stripe c${cat}"></div><div class="fc-corner-glow c${cat}"></div>
-    <div><div class="fc-badge c${cat}">${c.sub||''}</div><div class="fc-question">${c.question||''}</div></div>
-    <div class="fc-answer">${ans}</div><div class="fc-hint">לחצי לגילוי התשובה</div>
-  </div>
-  <div class="fc-nav">
-    <button class="fc-nav-btn" onclick="ci--;renderContent()" ${ci===0?'disabled':''}>→</button>
-    <div class="fc-nav-center">${ci+1} מתוך ${cards.length}</div>
-    <button class="fc-nav-btn" onclick="ci++;renderContent()" ${ci===cards.length-1?'disabled':''}>←</button>
-  </div>`;
+  el.innerHTML=`
+    <div class="fc-meta">
+      <div class="fc-progress">
+        <span class="fc-num">${ci+1}/${cards.length}</span>
+        <div class="fc-bar"><div class="fc-bar-fill c${cat}" style="width:${pct}%"></div></div>
+      </div>
+      <button class="fc-shuffle" onclick="cards=shuffle(getFiltered());ci=0;renderContent()">ערבוב</button>
+    </div>
+    <div class="flashcard" id="fc" onclick="document.getElementById('fc').classList.toggle('revealed')">
+      <div class="fc-stripe c${cat}"></div>
+      <div class="fc-corner-glow c${cat}"></div>
+      <div>
+        <div class="fc-badge c${cat}">${c.sub||''}</div>
+        <div class="fc-question">${c.question||''}</div>
+      </div>
+      <div class="fc-answer">${ans}</div>
+      <div class="fc-hint">לחצי לגילוי התשובה</div>
+    </div>
+    <div class="fc-nav">
+      <button class="fc-nav-btn" onclick="ci--;renderContent()" ${ci===0?'disabled':''}>→</button>
+      <div class="fc-nav-center">${ci+1} מתוך ${cards.length}</div>
+      <button class="fc-nav-btn" onclick="ci++;renderContent()" ${ci===cards.length-1?'disabled':''}>←</button>
+    </div>`;
 }
+
 function renderQuiz(el){
   if(!qItems.length){el.innerHTML='<div class="empty">אין שאלות בתת-קטגוריה זו</div>';return;}
   if(done){
     const pct=Math.round(score/qItems.length*100);
-    el.innerHTML=`<div class="result-card"><div class="result-glow c${cat}"></div><div class="result-score c${cat}">${score}<span style="font-size:32px">/${qItems.length}</span></div><div class="result-label">ניקוד סופי</div><div class="result-msg">${pct>=90?'מדהים! כמו ברמן אמיתי':pct>=70?'טוב מאוד, עוד קצת!':'המשיכי להתאמן!'}</div><div class="result-sub">${pct}% נכון</div><button class="restart-btn" onclick="reset();renderContent()">התחלה מחדש</button></div>`;
+    el.innerHTML=`<div class="result-card">
+      <div class="result-glow c${cat}"></div>
+      <div class="result-score c${cat}">${score}<span style="font-size:32px">/${qItems.length}</span></div>
+      <div class="result-label">ניקוד סופי</div>
+      <div class="result-msg">${pct>=90?'מדהים! כמו ברמן אמיתי':pct>=70?'טוב מאוד, עוד קצת!':'המשיכי להתאמן!'}</div>
+      <div class="result-sub">${pct}% נכון</div>
+      <button class="restart-btn" onclick="reset();renderContent()">התחלה מחדש</button>
+    </div>`;
     return;
   }
   const q=qItems[qi],isAns=answered[qi]!==undefined,ans=fmt(q.answer);
-  el.innerHTML=`<div class="quiz-header"><div class="quiz-stat">ניקוד<span>${score}/${qItems.length}</span></div><div class="quiz-stat">שאלה<span>${qi+1}/${qItems.length}</span></div></div>
-  <div class="quiz-card">
-    <div class="qz-num">שאלה ${qi+1} מתוך ${qItems.length}</div>
-    <div class="qz-badge c${cat}">${q.sub||''}</div>
-    <div class="qz-question">${q.question||''}</div>
-    <textarea class="open-textarea" placeholder="כתבי את תשובתך..."></textarea>
-    ${!isAns?`<button class="reveal-btn" onclick="answered[${qi}]=true;renderContent()">הצגת תשובה</button>`:''}
-    <div class="answer-reveal c${cat}${isAns?' shown':''}">✓ ${ans}</div>
-  </div>
-  ${isAns?`<button class="next-btn c${cat}" onclick="nextQ()">${qi<qItems.length-1?'הבאה ←':'סיום וראיית תוצאות'}</button>`:''}`;
+  el.innerHTML=`
+    <div class="quiz-header">
+      <div class="quiz-stat">ניקוד<span>${score}/${qItems.length}</span></div>
+      <div class="quiz-stat">שאלה<span>${qi+1}/${qItems.length}</span></div>
+    </div>
+    <div class="quiz-card">
+      <div class="qz-num">שאלה ${qi+1} מתוך ${qItems.length}</div>
+      <div class="qz-badge c${cat}">${q.sub||''}</div>
+      <div class="qz-question">${q.question||''}</div>
+      <textarea class="open-textarea" placeholder="כתבי את תשובתך..."></textarea>
+      ${!isAns?`<button class="reveal-btn" onclick="answered[${qi}]=true;renderContent()">הצגת תשובה</button>`:''}
+      <div class="answer-reveal c${cat}${isAns?' shown':''}">✓ ${ans}</div>
+    </div>
+    ${isAns?`<button class="next-btn c${cat}" onclick="nextQ()">${qi<qItems.length-1?'הבאה ←':'סיום וראיית תוצאות'}</button>`:''}`;
 }
+
 function nextQ(){if(answered[qi])score++;qi++;if(qi>=qItems.length)done=true;renderContent();}
-function showError(msg){document.getElementById('root').innerHTML=`<div class="app"><div class="header"><div class="header-logo">KEPASA</div><h1>מערכת <em>לימוד</em></h1></div><div class="error-card"><h3>שגיאה בטעינה</h3><p>${msg}</p><button class="retry-btn" onclick="loadData()">נסי שוב</button></div></div>`;}
+
+function showError(msg){
+  document.getElementById('root').innerHTML=`<div class="app">
+    <div class="header"><div class="header-logo">KEPASA</div><h1>מערכת <em>לימוד</em></h1></div>
+    <div class="error-card"><h3>שגיאה בטעינה</h3><p>${msg}</p><button class="retry-btn" onclick="loadData()">נסי שוב</button></div>
+  </div>`;
+}
+
 async function loadData(){
-  document.getElementById('root').innerHTML=`<div class="loading-screen"><div class="loading-logo">KEPASA</div><div class="loading-spinner"></div><div class="loading-text">טוענת חומר לימוד...</div></div>`;
+  document.getElementById('root').innerHTML=`<div class="loading-screen">
+    <div class="loading-logo">KEPASA</div>
+    <div class="loading-spinner"></div>
+    <div class="loading-text">טוענת חומר לימוד...</div>
+  </div>`;
   try{
     const res=await fetch(API);
     if(!res.ok)throw new Error('שגיאת רשת');
@@ -213,9 +274,13 @@ async function loadData(){
     if(!Array.isArray(data)||!data.length)throw new Error('הגיליון ריק');
     allData=data.filter(r=>r.cat&&r.question&&r.answer);
     if(!allData.length)throw new Error('לא נמצאו נתונים תקינים');
-    reset();renderApp();
-  }catch(e){showError('לא הצלחתי לטעון. בדקי שה-Apps Script פורס כראוי. '+e.message);}
+    reset();
+    renderApp();
+  }catch(e){
+    showError('לא הצלחתי לטעון. '+e.message);
+  }
 }
+
 loadData();
 </script>
 </body>
